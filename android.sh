@@ -208,7 +208,8 @@ enable_lts_build() {
   export MOBILE_FFMPEG_LTS_BUILD="1"
 
   # USING API LEVEL 16 / Android 4.1 (JELLY BEAN)
-  export API=16
+#  export API=16
+  export API=21
 }
 
 reconf_library() {

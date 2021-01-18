@@ -54,6 +54,8 @@ public class CommandTabFragment extends Fragment {
 
         commandText = view.findViewById(R.id.commandText);
 
+        commandText.setText("-y -i sdcard/1111.mp4 -c:v h264_mediacodec  -r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/test222.mp4");
+
         View runFFmpegButton = view.findViewById(R.id.runFFmpegButton);
         runFFmpegButton.setOnClickListener(new View.OnClickListener() {
 
