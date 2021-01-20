@@ -683,13 +683,16 @@ int opt_recording_timestamp(void *optctx, const char *opt, const char *arg)
 
 AVCodec *find_codec_or_die(const char *name, enum AVMediaType type, int encoder)
 {
-    const AVCodecDescriptor *desc;
+    const AVCodecDescriptor *desc = NULL;
     const char *codec_string = encoder ? "encoder" : "decoder";
     AVCodec *codec;
+
 
     codec = encoder ?
         avcodec_find_encoder_by_name(name) :
         avcodec_find_decoder_by_name(name);
+
+
 
     if (!codec && (desc = avcodec_descriptor_get_by_name(name))) {
         codec = encoder ? avcodec_find_encoder(desc->id) :
