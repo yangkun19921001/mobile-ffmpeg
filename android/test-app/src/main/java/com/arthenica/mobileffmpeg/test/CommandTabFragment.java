@@ -86,6 +86,9 @@ public class CommandTabFragment extends Fragment {
 
         Log.d(MainActivity.TAG, "Last command output was: " + Config.getLastCommandOutput());
 
+    }
+
+    private void initData() {
         mLists.add("file:///storage/emulated/0/SpeedPiaoquanVideo/create/ossMaterial/176775907a36a26df7034fc5bfa7ff889b08351e1610292368817");
         mLists.add("file:///storage/emulated/0/SpeedPiaoquanVideo/create/ossMaterial/176775900df6019f89524316990b28d958e584861610292383190");
         mLists.add("file:///storage/emulated/0/SpeedPiaoquanVideo/create/ossMaterial/176775908480dabc15954d728b4465cf7445aa811610292373763");
@@ -122,7 +125,6 @@ public class CommandTabFragment extends Fragment {
             @Override
             public void apply(final LogMessage message) {
                 MainActivity.addUIAction(new Callable() {
-
                     @Override
                     public Object call() {
                         appendLog(message.getText());
@@ -136,6 +138,7 @@ public class CommandTabFragment extends Fragment {
     }
 
     public void runFFmpeg() {
+        initData();
         clearLog();
 
         final String ffmpegCommand = String.format("%s", commandText.getText().toString());
@@ -175,15 +178,16 @@ public class CommandTabFragment extends Fragment {
 //                    String url = (String) mLists.remove(5);
                     String url = "file:///storage/emulated/0/SpeedPiaoquanVideo/create/ossMaterial/test.download";
                     mLists.clear();
-                    String codec_name = "android_h264_mediacodec";
+                    String codec_name = "h264_mediacodec";
 //                    String cmd = "-y -i " + PathUtils.getPath(getActivity(), Uri.parse(url)) + " -c:v android_h264_mediacodec  -r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + System.currentTimeMillis() + ".mp4";
 //                    String cmd = "-y -i " + PathUtils.getPath(getActivity(), Uri.parse(url)) + " -c:v libx264  -r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + codec_name+"-"+System.currentTimeMillis() + ".mp4";
 //                    String cmd = "-y -i " + PathUtils.getPath(getActivity(), Uri.parse(url)) + " -c:v libx264 -profile:v baseline -r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + codec_name+"-"+System.currentTimeMillis() + ".mp4";
-//                    String cmd = "-y -i " + PathUtils.getPath(getActivity(), Uri.parse(url)) + " -c:v "+ " android_h264_mediacodec " + "-r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + codec_name+"-"+System.currentTimeMillis() + ".mp4";
+//                    String cmd = "-y -i " + "sdcard/SpeedPiaoquanVideo/create/output/1611141175265_changeFps.mp4" + " -c:v "+ " h264_mediacodec " + "-r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + codec_name+"-"+System.currentTimeMillis() + ".mp4";
+                    String cmd = "-y -i " + "sdcard/SpeedPiaoquanVideo/create/output/1611141175265_changeFps.mp4" + " -c:v "+ " h264_mediacodec " + "-r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + codec_name+"-"+System.currentTimeMillis() + ".mp4";
 
 //                    String cmd = "-y -i " + PathUtils.getPath(getActivity(), Uri.parse(url)) + " -c:v "+ " libx264 -profile:v baseline  -vf scale=640:360 sdcard/ffmpeg-mediacodec/"  + codec_name+"-"+System.currentTimeMillis() + ".mp4" +" -hide_banner";
 
-                    String cmd = "-y  -s 720x1280 -i sdcard/yuv.yuv -c:v libx264 sdcard/yuv.mp4";
+//                    String cmd = "-y  -s 720x1280 -i sdcard/yuv.yuv -c:v h264_mediacodec sdcard/yuv.h264";
 
                     Log.d("FFmpeg", "cmd--------------------" + cmd);
                     int result = FFmpeg.execute(cmd);

@@ -287,7 +287,7 @@ do
             ;;
             android-media-codec)
 #                CONFIGURE_POSTFIX+=" --enable-mediacodec --enable-decoder=h264_mediacodec --enable-hwaccel=h264_mediacodec "
-                CONFIGURE_POSTFIX+=" --enable-mediacodec --enable-decoder=h264_mediacodec --enable-decoder=hevc_mediacodec --enable-decoder=mpeg4_mediacodec --enable-encoder=h264_mediacodec  "
+                CONFIGURE_POSTFIX+=" --enable-mediacodec --enable-decoder=h264_mediacodec --enable-decoder=hevc_mediacodec --enable-decoder=mpeg4_mediacodec --enable-encoder=h264_mediacodec"
         esac
     else
 
