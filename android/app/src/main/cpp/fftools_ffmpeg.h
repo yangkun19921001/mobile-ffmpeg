@@ -69,6 +69,8 @@
 
 #include "libswresample/swresample.h"
 
+#include "mobileffmpeg.h"
+
 #define VSYNC_AUTO       -1
 #define VSYNC_PASSTHROUGH 0
 #define VSYNC_CFR         1

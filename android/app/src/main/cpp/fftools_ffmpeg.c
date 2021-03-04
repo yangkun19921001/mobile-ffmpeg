@@ -75,6 +75,7 @@
 #include "libavdevice/avdevice.h"
 #include "libswresample/swresample.h"
 #include "libavutil/opt.h"
+#include "libavutil/log.h"
 #include "libavutil/channel_layout.h"
 #include "libavutil/parseutils.h"
 #include "libavutil/samplefmt.h"
@@ -95,6 +96,7 @@
 #include "libavutil/thread.h"
 #include "libavutil/threadmessage.h"
 #include "libavcodec/mathops.h"
+
 #include "libavformat/os_support.h"
 
 # include "libavfilter/avfilter.h"
@@ -1043,7 +1045,9 @@ static void do_audio_out(OutputFile *of, OutputStream *ost,
         goto error;
 
     while (1) {
+      LOGE("时间记录  avcodec_receive_packet in\n");
         ret = avcodec_receive_packet(enc, &pkt);
+          LOGE( "时间记录  avcodec_receive_packet out\n");
         if (ret == AVERROR(EAGAIN))
             break;
         if (ret < 0)
@@ -1150,6 +1154,14 @@ static void do_subtitle_out(OutputFile *of,
         pkt.dts = pkt.pts;
         output_packet(of, &pkt, ost, 0);
     }
+}
+
+#include <sys/time.h>
+static  long long currentTimeMills();
+static  long long currentTimeMills(){
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (long long)tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
 static void do_video_out(OutputFile *of,
@@ -1386,6 +1398,8 @@ static void do_video_out(OutputFile *of,
 
         ost->frames_encoded++;
 
+        LOGE("时间记录  avcodec_receive_packet in\n");
+        long long  start_time = currentTimeMills();
         ret = avcodec_send_frame(enc, in_picture);
         if (ret < 0)
             goto error;
@@ -1393,8 +1407,10 @@ static void do_video_out(OutputFile *of,
         av_frame_remove_side_data(in_picture, AV_FRAME_DATA_A53_CC);
 
         while (1) {
-            ret = avcodec_receive_packet(enc, &pkt);
-            update_benchmark("encode_video %d.%d", ost->file_index, ost->index);
+
+         ret = avcodec_receive_packet(enc, &pkt);
+
+         update_benchmark("encode_video %d.%d", ost->file_index, ost->index);
             if (ret == AVERROR(EAGAIN))
                 break;
             if (ret < 0)
@@ -1437,6 +1453,9 @@ static void do_video_out(OutputFile *of,
 
     if (vstats_filename && frame_size)
         do_video_stats(ost, frame_size);
+
+        long long end = (currentTimeMills()-start_time);
+        LOGE("时间记录  avcodec_receive_packet out %lld \n",end);
   }
 
     if (!ost->last_frame)
@@ -1446,6 +1465,7 @@ static void do_video_out(OutputFile *of,
         av_frame_ref(ost->last_frame, next_picture);
     else
         av_frame_free(&ost->last_frame);
+
 
     return;
 error:

@@ -27,6 +27,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -183,11 +185,16 @@ public class CommandTabFragment extends Fragment {
 //                    String cmd = "-y -i " + PathUtils.getPath(getActivity(), Uri.parse(url)) + " -c:v libx264  -r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + codec_name+"-"+System.currentTimeMillis() + ".mp4";
 //                    String cmd = "-y -i " + PathUtils.getPath(getActivity(), Uri.parse(url)) + " -c:v libx264 -profile:v baseline -r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + codec_name+"-"+System.currentTimeMillis() + ".mp4";
 //                    String cmd = "-y -i " + "sdcard/SpeedPiaoquanVideo/create/output/1611141175265_changeFps.mp4" + " -c:v "+ " h264_mediacodec " + "-r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + codec_name+"-"+System.currentTimeMillis() + ".mp4";
-                    String cmd = "-y -i " + "sdcard/SpeedPiaoquanVideo/create/output/1611141175265_changeFps.mp4" + " -c:v "+ " h264_mediacodec " + "-r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + codec_name+"-"+System.currentTimeMillis() + ".mp4";
+//                    String cmd = "-y -i " + "sdcard/SpeedPiaoquanVideo/create/output/1611141175265_changeFps.mp4" + " -c:v "+ " h264_mediacodec " + "-r 25 -b:v 3000K -ar 44100 -ac 2 sdcard/ffmpeg-mediacodec/" + codec_name+"-"+System.currentTimeMillis() + ".mp4";
 
 //                    String cmd = "-y -i " + PathUtils.getPath(getActivity(), Uri.parse(url)) + " -c:v "+ " libx264 -profile:v baseline  -vf scale=640:360 sdcard/ffmpeg-mediacodec/"  + codec_name+"-"+System.currentTimeMillis() + ".mp4" +" -hide_banner";
+                    String cmd = "-y -i " + PathUtils.getPath(getActivity(), Uri.parse(url)) + " -c:v " + " h264_mediacodec  -vf scale=640:360 sdcard/ffmpeg-mediacodec/" + codec_name + "-" + System.currentTimeMillis() + ".mp4" + " -hide_banner";
 
-//                    String cmd = "-y  -s 720x1280 -i sdcard/yuv.yuv -c:v h264_mediacodec sdcard/yuv.h264";
+//                    String cmd = "-s 720x1280 -i sdcard/yuv.yuv -c:v h264_mediacodec -y sdcard/yuv.h264";
+
+                    //ffmpeg-mediacode-test480x270-yuv.yuv
+                    //ffmpeg -s 480x270 -i sdcard/ffmpeg-mediacodec/ffmpeg-mediacode-test480x270-yuv.yuv -c:v h264_mediacodec sdcard/ffmpeg-mediacodec/ffmpeg-mediacode-test480x270-yuv.h264
+                    cmd = "-s 480x270 -i sdcard/ffmpeg-mediacodec/ffmpeg-mediacode-test480x270-yuv.yuv -c:v libx264 -y sdcard/ffmpeg-mediacodec/ffmpeg-mediacode-test480x270-yuv.mp4";
 
                     Log.d("FFmpeg", "cmd--------------------" + cmd);
                     int result = FFmpeg.execute(cmd);
@@ -202,9 +209,15 @@ public class CommandTabFragment extends Fragment {
                         });
                     }
                 }
-                long l = System.currentTimeMillis() - pre;
+                final long l = System.currentTimeMillis() - pre;
                 Log.d("FFmpeg", "complete-------耗时：" + l / 1000);
-                //libx264 3 分钟
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getActivity(), "编码耗时=" + (l / 1000), Toast.LENGTH_SHORT).show();
+                    }
+                });
+               //libx264 3 分钟
                 //libx264 -profile:v baseline 130 2.10 分钟
                 //Android MediaCodec h264 1.50分钟
             }
