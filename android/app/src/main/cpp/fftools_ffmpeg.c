@@ -1206,9 +1206,12 @@ static void do_video_out(OutputFile *of,
                                           ost->last_nb0_frames[1],
                                           ost->last_nb0_frames[2]);
     } else {
+        //sync_ipts 也可以参考 ffmpeg v0.6 get_sync_ipts
         delta0 = sync_ipts - ost->sync_opts; // delta0 is the "drift" between the input frame (next_picture) and where it would fall in the output.
+
         delta  = delta0 + duration;
 
+        av_log(NULL, AV_LOG_ERROR, "delta=%f delta0= %f sync_ipts= %f sync_opts= %ld duration= %f \n",delta, -delta0,sync_ipts,ost->sync_opts,duration);
         /* by default, we output a single frame */
         nb0_frames = 0; // tracks the number of times the PREVIOUS frame should be duplicated, mostly for variable framerate (VFR)
         nb_frames = 1;
@@ -1248,11 +1251,12 @@ static void do_video_out(OutputFile *of,
         case VSYNC_VSCFR:
             if (ost->frame_number == 0 && delta0 >= 0.5) {
                 av_log(NULL, AV_LOG_DEBUG, "Not duplicating %d initial frames\n", (int)lrintf(delta0));
+                av_log(NULL, AV_LOG_ERROR, "VSYNC_VSCFR delta0 %f \n", delta0);
                 delta = duration;
                 delta0 = 0;
                 ost->sync_opts = lrint(sync_ipts);
             }
-        case VSYNC_CFR:
+        case VSYNC_CFR:// 如果指定了输出帧率，输入帧会按照需要进行复制（如果输出帧率大于输入帧率）或丢弃（如果输出帧率小于输入帧率）
             // FIXME set to 0.5 after we fix some dts/pts bugs like in avidec.c
             if (frame_drop_threshold && delta < frame_drop_threshold && ost->frame_number) {
                 nb_frames = 0;
@@ -1263,15 +1267,18 @@ static void do_video_out(OutputFile *of,
                 if (delta0 > 1.1)
                     nb0_frames = lrintf(delta0 - 0.6);
             }
+
+            av_log(NULL, AV_LOG_ERROR, "VSYNC_CFR nb_frames %d \n", nb_frames);
             break;
-        case VSYNC_VFR:
+        case VSYNC_VFR://输入帧从解码器到编码器，时间戳保持不变；如果出现相同时间戳的帧，则丢弃之
             if (delta <= -0.6)
                 nb_frames = 0;
             else if (delta > 0.6)
                 ost->sync_opts = lrint(sync_ipts);
+            av_log(NULL, AV_LOG_ERROR, "VSYNC_VFR delta %f nb_frames %d \n",delta, nb_frames);
             break;
-        case VSYNC_DROP:
-        case VSYNC_PASSTHROUGH:
+        case VSYNC_DROP://但将所有帧的时间戳清空
+        case VSYNC_PASSTHROUGH://每一帧从解码器到编码器，时间戳保持不变
             ost->sync_opts = lrint(sync_ipts);
             break;
         default:
@@ -1398,7 +1405,7 @@ static void do_video_out(OutputFile *of,
 
         ost->frames_encoded++;
 
-        LOGE("时间记录  avcodec_receive_packet in\n");
+        LOGE("时间记录  avcodec_send_frame in\n");
         long long  start_time = currentTimeMills();
         ret = avcodec_send_frame(enc, in_picture);
         if (ret < 0)

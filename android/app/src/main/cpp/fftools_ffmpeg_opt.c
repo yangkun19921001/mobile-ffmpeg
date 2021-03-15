@@ -717,6 +717,10 @@ AVCodec *choose_decoder(OptionsContext *o, AVFormatContext *s, AVStream *st)
 {
     char *codec_name = NULL;
 
+  //  if (st->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+     //   codec_name = "h264_mediacodec";
+    //}
+
     MATCH_PER_STREAM_OPT(codec_names, str, codec_name, s, st);
     if (codec_name) {
         AVCodec *codec = find_codec_or_die(codec_name, st->codecpar->codec_type, 0);
